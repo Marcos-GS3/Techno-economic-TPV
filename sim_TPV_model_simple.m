@@ -1,8 +1,22 @@
 % simple model used to simulate electricity generation through TPV 
 % being its conversion efficiency dependent on the TPV temperature
+
+%Datos InGaAs
+em = 0.5;
+e1 = 0.74;
+BR = 0.98;
+nint = 0.5;
+Rs = 0;
 Ttpv = 40; % TPV temperature in ºC
 Tem = 1400; % emitter temperature in ºC
-n_tpv = n_tpv_function(Ttpv);
+TemK=Tem+273; % Temperatura de emisor
+TtpvK=Ttpv+273; % Temperatura de célula
+
+
+% n_tpv = n_tpv_function(Ttpv,Tem);
+data_cell = TPVcell (em,e1,BR,nint,Rs,TemK,TtpvK);
+n_tpv = data_cell(1);
+
 n_st = 0.95; % storage efficiency, accounts for insulation losses
 n_ht = 0.95; % P2H conversion efficiency
 n_th = 0.8; % thermal efficiency, related to the losses from the 
@@ -17,7 +31,8 @@ COP_hp = COP_function(Ttpv,Tout);
 
 % Economic parameters
 CPA_tpv = 10; % €/cm2
-Pdens_tpv = Pdens_function(Tem)/1000; % in kW/m2
+Pdens_tpv = data_cell(2); % in kW/m2
+% Pdens_tpv = Pdens_function(Tem)/1000; % in kW/m2
 CPP_tpv = CPA_tpv*10000/Pdens_tpv; % €/kWel TPV cell
 CPP_ht = 20; % €/kWel P2H converter
 CPP_hp = 900; % €/kWth
@@ -37,8 +52,8 @@ CPP_tpv_ = CPP_tpv*CRF;
 CPP_hp_ = CPP_hp*CRF;
 
 % LCOrH
-LCOrH = (1/(n_th*n_st*n_ht))*(CPE_*n_ht + (CPP_ht_/(Nd*td)) + LCOE_in); %(CAPEX_storage + OPEX_input_el)/Etot_rad_phot
-% LCOrH = 0.1; % change with formula
+% LCOrH = (1/(n_th*n_st*n_ht))*(CPE_*n_ht + (CPP_ht_/(Nd*td)) + LCOE_in); %(CAPEX_storage + OPEX_input_el)/Etot_rad_phot
+LCOrH = 0.1; % change with formula
 
 
 % LCOEdiscounted
@@ -48,8 +63,8 @@ OPEX_sold_heat = LCOH*Nd*td*(1 - n_tpv)*COP_hp/(n_tpv*(COP_hp - 1)); % Qdem = Pe
 Etot = (n_tpv*COP_hp - 1)*Nd*td/(n_tpv*(COP_hp - 1)); % Pel_use = Pel_tpv*(n_tpv*COP_hp - 1)/(n_tpv*(COP_hp - 1))
 LCOE_disc = (CAPEX_tot + OPEX_in_rad - OPEX_sold_heat)/Etot; % all these parameters are divided into Pel_tpv
 
-function n_tpv = n_tpv_function(Ttpv)
-    n_tpv = Ttpv/5;
+function n_tpv = n_tpv_function(Ttpv, Tem)
+    n_tpv = Ttpv/5 + Tem/100;
 end
 
 function Pdens_tpv = Pdens_function(Tem)
