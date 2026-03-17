@@ -1,10 +1,10 @@
 %Datos InGaAs
-em=0.5;
-e1=0.74;
-BR=0.98;
-nint=0.5;
-Rs=0;
-Tc=300;
+% em=0.5;
+% e1=0.74;
+% BR=0.98;
+% nint=0.5;
+% Rs=0;
+% Tc=300;
 
 %Datos Ge
 em=0.5;
@@ -12,7 +12,7 @@ e1=0.67;
 BR=0.98;
 nint=0.000005;
 Rs=0;
-Tc=300;
+Tc=55 + 273;
 
 %%%%%%% Calculo de la matriz
 Te_minC=600;
