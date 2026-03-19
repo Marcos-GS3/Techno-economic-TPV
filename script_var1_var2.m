@@ -20,7 +20,7 @@ Cgrid = var2;
 % CPA_tpv = 10; % €/cm2
 CPP_hp = 900; % €/kWth
 d = 0.05; % discount rate
-n = 20; % installation lifetime (y)
+n = 25; % installation lifetime (y)
 % Cgrid = 0.17;
 inf_el = 0.02;
 % LCOH = 0.07; % gas cost
@@ -50,14 +50,14 @@ for j = 1:1:length(var2)
         CPP_tpv_(i,j) = CPP_tpv(i,j)*CRF;
         if (Ttpv(i) < Tout) % need heat pump
             COP_hp(i,j) = COP_function(Ttpv(i),Tout);
-            CPP_hp_(i,j) = CPP_hp*CRF*COP_hp(i,j);
+            CPP_hp_(i,j) = CPP_hp*CRF/COP_hp(i,j);
             CAPEX_tot(i,j) = CPP_tpv_(i,j) + CPP_hp_(i,j)*(1 - n_tpv(i,j))/(n_tpv(i,j)*(COP_hp(i,j) - 1)); % CAPEXtpv + CAPEXhp => Pel_hp = Pel_tpv*(1 - n_tpv)/(n_tpv*(COP_hp - 1))
             OPEX_sold_heat(i,j) = LCOH*teq*(1 - n_tpv(i,j))*COP_hp(i,j)/(n_tpv(i,j)*(COP_hp(i,j) - 1)); % Qdem = Pel_hp * COP_hp
             Etot(i,j) = (n_tpv(i)*COP_hp(i,j) - 1)*teq/(n_tpv(i,j)*(COP_hp(i,j) - 1)); % Pel_use = Pel_tpv*(n_tpv*COP_hp - 1)/(n_tpv*(COP_hp - 1))
             Cgrid_tot_ref(i,j) = Cgrid(j)*teq*(n_tpv(i,j)*COP_hp(i,j) - 1)/(n_tpv(i,j)*(COP_hp(i,j) - 1)); % multiplied by Pel_use
         else    
             COP_hp(i,j) = NaN;
-            CPP_hp_(i,j) = CPP_hp*CRF*COP_hp(i,j);
+            CPP_hp_(i,j) = CPP_hp*CRF/COP_hp(i,j);
             CAPEX_tot(i,j) = CPP_tpv_(i,j); 
             OPEX_sold_heat(i,j) = LCOH*teq*(1 - n_tpv(i,j))/n_tpv(i,j);
             Etot(i,j) = teq;

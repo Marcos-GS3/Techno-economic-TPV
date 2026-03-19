@@ -6,7 +6,7 @@ clear
 % Temitter
 
 CF = 1; % capacity factor of use of PHPS
-LCOH = 0.02; % gas cost €/kWh
+LCOH = 0.07; % gas cost €/kWh
 
 Tem_var = [700 1600 2500];
 CPA_tpv_var = [10 70]; % €/cm2

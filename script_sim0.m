@@ -22,7 +22,7 @@ Ttpv = (20:5:79); % TPV temperature in ºC
 % CPA_tpv = 10; % €/cm2
 CPP_hp = 900; % €/kWth
 d = 0.05; % discount rate
-n = 20; % installation lifetime (y)
+n = 25; % installation lifetime (y)
 Cgrid = 0.17;
 inf_el = 0.02;
 % LCOH = 0.07; % gas cost
@@ -36,7 +36,7 @@ for j = 1:1:length(LCOrH)
     % Heating data
     Tout = 80; % output heat temperature, in ºC
     for i = 1:1:length(Ttpv)
-    % for i=3
+    % for i=10
         TemK = Tem + 273; % Temperatura de emisor
         TtpvK(i) = Ttpv(i) + 273; % Temperatura de célula
         data_cell = TPVcell (em,e1,BR,nint,Rs,TemK,TtpvK(i));
@@ -51,27 +51,28 @@ for j = 1:1:length(LCOrH)
         % Capital costs
         CRF = (d*(1+d)^n)/((1+d)^n-1);
         CPP_tpv_(i) = CPP_tpv(i)*CRF;
-        if (Ttpv(i) < Tout) % need heat pump
+        if (Ttpv(i) < Tout && n_tpv(i)>0) % need heat pump
             COP_hp(i) = COP_function(Ttpv(i),Tout);
-            CPP_hp_(i) = CPP_hp*CRF*COP_hp(i);
+            CPP_hp_(i) = CPP_hp*CRF/COP_hp(i);
             CAPEX_tot(i) = CPP_tpv_(i) + CPP_hp_(i)*(1 - n_tpv(i))/(n_tpv(i)*(COP_hp(i) - 1)); % CAPEXtpv + CAPEXhp => Pel_hp = Pel_tpv*(1 - n_tpv)/(n_tpv*(COP_hp - 1))
             OPEX_sold_heat(i) = LCOH*teq*(1 - n_tpv(i))*COP_hp(i)/(n_tpv(i)*(COP_hp(i) - 1)); % Qdem = Pel_hp * COP_hp
             Etot(i) = (n_tpv(i)*COP_hp(i) - 1)*teq/(n_tpv(i)*(COP_hp(i) - 1)); % Pel_use = Pel_tpv*(n_tpv*COP_hp - 1)/(n_tpv*(COP_hp - 1))
             Cgrid_tot_ref(i) = Cgrid*teq*(n_tpv(i)*COP_hp(i) - 1)/(n_tpv(i)*(COP_hp(i) - 1)); % multiplied by Pel_use
+            OPEX_in_rad(i,j) = LCOrH(j)*teq/n_tpv(i); % radiated photons cost, either from waste heat or from LHTPV battery
         else    
             COP_hp(i) = NaN;
-            CPP_hp_(i) = CPP_hp*CRF*COP_hp(i);
-            CAPEX_tot(i) = CPP_tpv_(i); 
+            CPP_hp_(i) = CPP_hp*CRF/COP_hp(i);
+            CAPEX_tot(i) = NaN; 
             OPEX_sold_heat(i) = LCOH*teq*(1 - n_tpv(i))/n_tpv(i);
             Etot(i) = teq;
-            Cgrid_tot_ref(i) = teq; % multiplied by Pel_use
+            Cgrid_tot_ref(i) = teq*Cgrid; % multiplied by Pel_use
+            OPEX_in_rad(i,j) = NaN;
         end
         if (COP_hp(i) < 1/n_tpv(i)) % then Etot negative
             Etot(i) = NaN;
             Cgrid_tot_ref(i) = NaN;
         end
         % LCOEdiscounted
-        OPEX_in_rad(i,j) = LCOrH(j)*teq/n_tpv(i); % radiated photons cost, either from waste heat or from LHTPV battery
         LCOE_disc(i,j) = (CAPEX_tot(i) + OPEX_in_rad(i,j) - OPEX_sold_heat(i))/Etot(i); % previous parameters are multiplied by Pel_tpv as common factor
         
         Cgrid_tot_ye(i,j) = OPEX_in_rad(i,j) - OPEX_sold_heat(i);

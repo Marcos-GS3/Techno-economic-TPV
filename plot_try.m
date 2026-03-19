@@ -154,7 +154,7 @@ ylabel('Numerator');
 grid off;
 set(gcf, 'Color', 'w');
 % Optional: Set axis limits for better visualization
-ylim([0 max(max(CAPEX_tot + OPEX_in_rad' - OPEX_sold_heat))]); % Adjust according to your dataxlim([Ttpv(1) Ttpv(end)]);
+% ylim([0 max(max(CAPEX_tot + OPEX_in_rad' - OPEX_sold_heat))]); % Adjust according to your dataxlim([Ttpv(1) Ttpv(end)]);
 % Optional: Customize the appearance of the plot
 set(gca, 'FontSize', 12); % Increase font size for better readability
 set(gca, 'LineWidth', 1.5); 
